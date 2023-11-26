@@ -1,12 +1,12 @@
+from django import forms
 from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from phonenumber_field.widgets import PhoneNumberPrefixWidget
 
-from .models import Product
-from .models import ProductCategory
-from .models import Restaurant
-from .models import RestaurantMenuItem
+from .models import (Order, OrderItem, Product, ProductCategory, Restaurant,
+                     RestaurantMenuItem)
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -90,7 +90,8 @@ class ProductAdmin(admin.ModelAdmin):
     def get_image_preview(self, obj):
         if not obj.image:
             return 'выберите картинку'
-        return format_html('<img src="{url}" style="max-height: 200px;"/>', url=obj.image.url)
+        return format_html('<img src="{url}" style="max-height: 200px;"/>',
+                           url=obj.image.url)
     get_image_preview.short_description = 'превью'
 
     def get_image_list_preview(self, obj):
@@ -102,5 +103,15 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductCategory)
-class ProductAdmin(admin.ModelAdmin):
+class ProductCategoryAdmin(admin.ModelAdmin):
     pass
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['first_name', 'last_name', 'contact_phone', 'address']
+    inlines = [OrderItemInline]

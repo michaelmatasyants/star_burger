@@ -1,5 +1,6 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -12,10 +13,11 @@ class Restaurant(models.Model):
         max_length=100,
         blank=True,
     )
-    contact_phone = models.CharField(
+    contact_phone = PhoneNumberField(
         'контактный телефон',
-        max_length=50,
+        region='RU',
         blank=True,
+        db_index=True
     )
 
     class Meta:
@@ -97,7 +99,7 @@ class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
         related_name='menu_items',
-        verbose_name="ресторан",
+        verbose_name='ресторан',
         on_delete=models.CASCADE,
     )
     product = models.ForeignKey(
@@ -120,4 +122,45 @@ class RestaurantMenuItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
+        return f'{self.restaurant.name} - {self.product.name}'
+
+class Order(models.Model):
+    first_name = models.CharField(verbose_name='Имя клиента',
+                                  max_length=50)
+    last_name = models.CharField(verbose_name='Фамилия клиента',
+                                 max_length=50)
+    contact_phone = PhoneNumberField(verbose_name='Телефон',
+                                     region='RU',
+                                     db_index=True,
+                                     validators=[MinValueValidator(11),
+                                                 MaxValueValidator(12)])
+    address = models.CharField(verbose_name='Адрес доставки',
+                               max_length=100,
+                               db_index=True)
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order,
+                              verbose_name='Заказ',
+                              on_delete=models.CASCADE,
+                              related_name='items')
+    product = models.ForeignKey(Product,
+                                verbose_name='Позиция в заказе',
+                                related_name='order_items',
+                                on_delete=models.SET_NULL,
+                                null=True)
+    quantity = models.IntegerField(verbose_name='количество')
+
+    class Meta:
+        verbose_name = 'Позиция в заказе'
+        verbose_name_plural = 'Позиции в заказе'
+
+    def __str__(self):
+        return f'{self.product} - {self.quantity}'
