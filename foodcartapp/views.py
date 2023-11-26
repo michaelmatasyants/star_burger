@@ -65,7 +65,6 @@ def register_order(request):
         ordered_items = order.get('products')
     except ValueError:
         return JsonResponse({'Error': 'ValueError'})
-    print(order)
     new_order = Order.objects.create(
         first_name=order.get('firstname'),
         last_name=order.get('lastname'),
@@ -75,7 +74,6 @@ def register_order(request):
         ).as_e164,
         address=order.get('address')
     )
-    print(order, ordered_items, new_order, sep='\n')
     for item in ordered_items:
         ordered_product = Product.objects.get(id=item.get('product'))
         OrderItem.objects.create(
