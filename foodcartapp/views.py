@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 from .models import Order, OrderItem, Product
@@ -63,9 +64,15 @@ def product_list_api(request):
 def register_order(request):
     try:
         order = request.data
-    except ValueError:
-        return Response({'Error': 'ValueError'})
-    ordered_items = order.get('products')
+        ordered_items = order['products']
+    except KeyError:
+        raise APIException(detail='Invalid key for products')
+    if not ordered_items:
+        raise APIException(
+            detail="The products key can't be empty or an empty list")
+    if not isinstance(ordered_items, list):
+        raise APIException(detail="The products key is'n a list")
+
     new_order = Order.objects.create(
         first_name=order.get('firstname'),
         last_name=order.get('lastname'),
@@ -75,6 +82,7 @@ def register_order(request):
         ).as_e164,
         address=order.get('address')
     )
+
     for item in ordered_items:
         ordered_product = Product.objects.get(id=item.get('product'))
         OrderItem.objects.create(
