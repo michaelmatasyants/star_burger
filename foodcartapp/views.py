@@ -1,8 +1,8 @@
-from json import loads
-
 from django.http import JsonResponse
 from django.templatetags.static import static
 from phonenumber_field.phonenumber import PhoneNumber
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .models import Order, OrderItem, Product
 
@@ -59,12 +59,13 @@ def product_list_api(request):
     })
 
 
+@api_view(['POST'])
 def register_order(request):
     try:
-        order = loads(request.body.decode())
-        ordered_items = order.get('products')
+        order = request.data
     except ValueError:
-        return JsonResponse({'Error': 'ValueError'})
+        return Response({'Error': 'ValueError'})
+    ordered_items = order.get('products')
     new_order = Order.objects.create(
         first_name=order.get('firstname'),
         last_name=order.get('lastname'),
@@ -81,4 +82,4 @@ def register_order(request):
             product=ordered_product,
             quantity=item.get('quantity')
         )
-    return JsonResponse({'status': 'created'})
+    return Response(order)
