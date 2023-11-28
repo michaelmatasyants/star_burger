@@ -65,22 +65,28 @@ def register_order(request):
     try:
         order = request.data
         ordered_items = order['products']
-    except KeyError:
-        raise APIException(detail='Invalid key for products')
+        first_name = order['firstname']
+        last_name = order['lastname']
+        phone_number = order['phonenumber']
+        address = order['address']
+    except KeyError as key_e:
+        raise APIException(detail=f"Invalid {key_e} key for order")
     if not ordered_items:
-        raise APIException(
-            detail="The products key can't be empty or an empty list")
+        raise APIException(detail="The products value must be a nonempty list")
+    for key, value in order.items():
+        if not value:
+            raise APIException(detail=f"The {key} value can't be empty")
+        if key != 'products' and not isinstance(value, str):
+            raise APIException(detail=f"The {key} value isn't a sting")
     if not isinstance(ordered_items, list):
-        raise APIException(detail="The products key is'n a list")
+        raise APIException(detail="The products value isn't a list")
 
     new_order = Order.objects.create(
-        first_name=order.get('firstname'),
-        last_name=order.get('lastname'),
-        contact_phone=PhoneNumber.from_string(
-            phone_number=order.get('phonenumber'),
-            region='RU'
-        ).as_e164,
-        address=order.get('address')
+        first_name=first_name,
+        last_name=last_name,
+        contact_phone=PhoneNumber.from_string(phone_number=phone_number,
+                                              region='RU').as_e164,
+        address=address
     )
 
     for item in ordered_items:
