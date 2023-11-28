@@ -1,11 +1,10 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 from .models import Order, OrderItem, Product
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -62,38 +61,21 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    try:
-        order = request.data
-        ordered_items = order['products']
-        first_name = order['firstname']
-        last_name = order['lastname']
-        phone_number = order['phonenumber']
-        address = order['address']
-    except KeyError as key_e:
-        raise APIException(detail=f"Invalid {key_e} key for order")
-    if not ordered_items:
-        raise APIException(detail="The products value must be a nonempty list")
-    for key, value in order.items():
-        if not value:
-            raise APIException(detail=f"The {key} value can't be empty")
-        if key != 'products' and not isinstance(value, str):
-            raise APIException(detail=f"The {key} value isn't a sting")
-    if not isinstance(ordered_items, list):
-        raise APIException(detail="The products value isn't a list")
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
     new_order = Order.objects.create(
-        first_name=first_name,
-        last_name=last_name,
-        contact_phone=PhoneNumber.from_string(phone_number=phone_number,
-                                              region='RU').as_e164,
-        address=address
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
     )
 
+    ordered_items = serializer.validated_data['products']
     for item in ordered_items:
-        ordered_product = Product.objects.get(id=item.get('product'))
         OrderItem.objects.create(
             order=new_order,
-            product=ordered_product,
-            quantity=item.get('quantity')
+            product=Product.objects.get(id=item['product']),
+            quantity=item['quantity']
         )
-    return Response(order)
+    return Response()
