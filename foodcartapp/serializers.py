@@ -11,9 +11,11 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = ListField(child=OrderItemSerializer(), allow_empty=False)
+    products = ListField(child=OrderItemSerializer(),
+                         allow_empty=False,
+                         write_only=True)
 
     class Meta:
         model = Order
-        fields = ['products', 'firstname', 'lastname',
-                  'phonenumber', 'address']
+        fields = ['id', 'firstname', 'lastname',
+                  'phonenumber', 'address', 'products']
