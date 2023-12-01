@@ -135,6 +135,8 @@ class Order(models.Model):
     address = models.CharField(verbose_name='Адрес доставки',
                                max_length=100,
                                db_index=True)
+    processed_order = models.BooleanField(verbose_name='Заказ обработан',
+                                          default=False)
 
     class Meta:
         verbose_name = 'Заказ'

@@ -5,8 +5,14 @@ from django.templatetags.static import static
 from django.utils.html import format_html
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 
-from .models import (Order, OrderItem, Product, ProductCategory, Restaurant,
-                     RestaurantMenuItem)
+from .models import (
+    Order,
+    OrderItem,
+    Product,
+    ProductCategory,
+    Restaurant,
+    RestaurantMenuItem,
+)
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -113,5 +119,6 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['firstname', 'lastname', 'phonenumber', 'address']
+    list_display = ['firstname', 'lastname', 'phonenumber',
+                    'address', 'processed_order']
     inlines = [OrderItemInline]
