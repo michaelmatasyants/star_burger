@@ -91,8 +91,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    serialized_orders = [OrderSerializer(order).data for order in
-                         Order.objects.filter(processed_order=False)]
-    context = {'orders': serialized_orders}
-    print(context, type(serialized_orders[0]))
-    return render(request, template_name='order_items.html', context=context)
+    orders = Order.objects.filter(processed_order=False).calculate_price()
+    return render(request,
+                  template_name='order_items.html',
+                  context={'orders': orders})
