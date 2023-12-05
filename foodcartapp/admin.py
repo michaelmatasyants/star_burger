@@ -1,9 +1,7 @@
-from django import forms
 from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
-from phonenumber_field.widgets import PhoneNumberPrefixWidget
 
 from .models import (
     Order,

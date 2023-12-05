@@ -168,6 +168,11 @@ class OrderItem(models.Model):
                                 on_delete=models.SET_NULL,
                                 null=True)
     quantity = models.IntegerField(verbose_name='Количество')
+    price = models.DecimalField(verbose_name='Цена',
+                                default=0,
+                                max_digits=8,
+                                decimal_places=2,
+                                validators=[MinValueValidator(1)])
 
     class Meta:
         verbose_name = 'Позиция в заказе'

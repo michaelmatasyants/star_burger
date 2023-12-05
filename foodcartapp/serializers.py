@@ -7,7 +7,7 @@ class OrderItemSerializer(ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity', 'price']
 
 
 class OrderSerializer(ModelSerializer):
@@ -27,5 +27,8 @@ class OrderSerializer(ModelSerializer):
 
         new_order = Order.objects.create(**validated_order)
         for product in validated_data['products']:
+
+            if not product.get('price'):
+                product['price'] = product['quantity'] * product['product'].price
             OrderItem.objects.create(order=new_order, **product)
         return new_order
