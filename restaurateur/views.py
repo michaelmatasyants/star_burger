@@ -7,7 +7,6 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.models import Order, Product, Restaurant
-from foodcartapp.serializers import OrderSerializer
 
 
 class Login(forms.Form):
@@ -91,7 +90,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.filter(processed_order=False).calculate_price()
+    orders = Order.objects.filter(status='U').calculate_price()
     return render(request,
                   template_name='order_items.html',
                   context={'orders': orders})

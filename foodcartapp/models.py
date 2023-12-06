@@ -54,38 +54,25 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(
-        'Название',
-        max_length=50
-    )
-    category = models.ForeignKey(
-        ProductCategory,
-        verbose_name='Категория',
-        related_name='products',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-    price = models.DecimalField(
-        'Цена',
-        max_digits=8,
-        decimal_places=2,
-        validators=[MinValueValidator(0)]
-    )
-    image = models.ImageField(
-        'Картинка'
-    )
-    special_status = models.BooleanField(
-        'Спец.предложение',
-        default=False,
-        db_index=True,
-    )
-    description = models.TextField(
-        'Описание',
-        max_length=500,
-        blank=True,
-    )
-
+    name = models.CharField(verbose_name='Название',
+                            max_length=50)
+    category = models.ForeignKey(ProductCategory,
+                                 verbose_name='Категория',
+                                 related_name='products',
+                                 null=True,
+                                 blank=True,
+                                 on_delete=models.SET_NULL)
+    price = models.DecimalField(verbose_name='Цена',
+                                max_digits=8,
+                                decimal_places=2,
+                                validators=[MinValueValidator(0)])
+    image = models.ImageField(verbose_name='Картинка')
+    special_status = models.BooleanField(verbose_name='Спец.предложение',
+                                         default=False,
+                                         db_index=True)
+    description = models.TextField(verbose_name='Описание',
+                                   max_length=500,
+                                   blank=True)
     objects = ProductQuerySet.as_manager()
 
     class Meta:
@@ -97,30 +84,22 @@ class Product(models.Model):
 
 
 class RestaurantMenuItem(models.Model):
-    restaurant = models.ForeignKey(
-        Restaurant,
-        related_name='menu_items',
-        verbose_name='Ресторан',
-        on_delete=models.CASCADE,
-    )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name='menu_items',
-        verbose_name='Продукт',
-    )
-    availability = models.BooleanField(
-        'В продаже',
-        default=True,
-        db_index=True
-    )
+    restaurant = models.ForeignKey(Restaurant,
+                                   related_name='menu_items',
+                                   verbose_name='Ресторан',
+                                   on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                related_name='menu_items',
+                                verbose_name='Продукт')
+    availability = models.BooleanField(verbose_name='В продаже',
+                                       default=True,
+                                       db_index=True)
 
     class Meta:
         verbose_name = 'Пункт меню ресторана'
         verbose_name_plural = 'Пункты меню ресторана'
-        unique_together = [
-            ['restaurant', 'product']
-        ]
+        unique_together = [['restaurant', 'product']]
 
     def __str__(self):
         return f'{self.restaurant.name} - {self.product.name}'
@@ -135,18 +114,27 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    ORDER_STATUS = [
+        ("U", "Unprocessed"),
+        ("C", "Confirmed"),
+        ("P", "Prepared"),
+        ("D", "Delivered"),
+    ]
     firstname = models.CharField(verbose_name='Имя клиента',
                                  max_length=50)
     lastname = models.CharField(verbose_name='Фамилия клиента',
                                 max_length=50)
     phonenumber = PhoneNumberField(verbose_name='Телефон',
-                                    region='RU',
-                                    db_index=True)
+                                   region='RU',
+                                   db_index=True)
     address = models.CharField(verbose_name='Адрес доставки',
                                max_length=100,
                                db_index=True)
-    processed_order = models.BooleanField(verbose_name='Заказ обработан',
-                                          default=False)
+    status = models.CharField(verbose_name='Статус заказа',
+                              max_length=1,
+                              db_index=True,
+                              choices=ORDER_STATUS,
+                              default='U')
     objects = OrderQuerySet.as_manager()
 
     class Meta:

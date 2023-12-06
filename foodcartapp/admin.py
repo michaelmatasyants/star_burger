@@ -121,15 +121,13 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['firstname', 'lastname', 'phonenumber',
-                    'address', 'processed_order']
+                    'address', 'status']
     inlines = [OrderItemInline]
 
     def response_change(self, request, obj):
         res = super(OrderAdmin, self).response_change(request, obj)
         if ("next" in request.GET
-            and url_has_allowed_host_and_scheme(
-                url=request.path,
-                allowed_hosts=allowed_hosts)):
-            url = iri_to_uri(iri=request.GET['next'])
-            return HttpResponseRedirect(redirect_to=url)
+            and url_has_allowed_host_and_scheme(url=request.path,
+                                                allowed_hosts=allowed_hosts)):
+            return HttpResponseRedirect(redirect_to=request.GET['next'])
         return res
