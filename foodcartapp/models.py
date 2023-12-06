@@ -108,17 +108,17 @@ class RestaurantMenuItem(models.Model):
 class OrderQuerySet(models.QuerySet):
     def calculate_price(self):
         order = self.annotate(
-            price=Sum(F("items__product__price") * F("items__quantity"))
+            price=Sum(F('items__product__price') * F('items__quantity'))
         )
         return order
 
 
 class Order(models.Model):
     ORDER_STATUS = [
-        ("U", "Unprocessed"),
-        ("C", "Confirmed"),
-        ("P", "Prepared"),
-        ("D", "Delivered"),
+        ('U', 'Unprocessed'),
+        ('C', 'Confirmed'),
+        ('P', 'Prepared'),
+        ('D', 'Delivered'),
     ]
     firstname = models.CharField(verbose_name='Имя клиента',
                                  max_length=50)
@@ -135,6 +135,8 @@ class Order(models.Model):
                               db_index=True,
                               choices=ORDER_STATUS,
                               default='U')
+    comment = models.TextField(verbose_name='Комментарий',
+                               blank=True)
     objects = OrderQuerySet.as_manager()
 
     class Meta:
