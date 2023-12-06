@@ -1,10 +1,19 @@
+from django.conf.global_settings import ALLOWED_HOSTS as allowed_hosts
 from django.contrib import admin
-from django.shortcuts import reverse
+from django.shortcuts import HttpResponseRedirect, reverse
 from django.templatetags.static import static
+from django.utils.encoding import iri_to_uri
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 
-from .models import (Order, OrderItem, Product, ProductCategory, Restaurant,
-                     RestaurantMenuItem)
+from .models import (
+    Order,
+    OrderItem,
+    Product,
+    ProductCategory,
+    Restaurant,
+    RestaurantMenuItem,
+)
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -114,3 +123,13 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['firstname', 'lastname', 'phonenumber',
                     'address', 'processed_order']
     inlines = [OrderItemInline]
+
+    def response_change(self, request, obj):
+        res = super(OrderAdmin, self).response_change(request, obj)
+        if ("next" in request.GET
+            and url_has_allowed_host_and_scheme(
+                url=request.path,
+                allowed_hosts=allowed_hosts)):
+            url = iri_to_uri(iri=request.GET['next'])
+            return HttpResponseRedirect(redirect_to=url)
+        return res
