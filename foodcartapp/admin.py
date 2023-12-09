@@ -2,7 +2,6 @@ from django.conf.global_settings import ALLOWED_HOSTS as allowed_hosts
 from django.contrib import admin
 from django.shortcuts import HttpResponseRedirect, reverse
 from django.templatetags.static import static
-from django.utils.encoding import iri_to_uri
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
 
@@ -121,7 +120,7 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['firstname', 'lastname', 'phonenumber',
-                    'address', 'status']
+                    'address', 'status', 'cooking_restaurant']
     inlines = [OrderItemInline]
 
     def response_change(self, request, obj):

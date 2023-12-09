@@ -97,7 +97,7 @@ class RestaurantMenuItem(models.Model):
 
 
 class OrderQuerySet(models.QuerySet):
-    def calculate_price(self):
+    def fetch_total_price(self):
         order = self.annotate(
             price=Sum(F('items__product__price') * F('items__quantity'))
         )
@@ -149,6 +149,15 @@ class Order(models.Model):
                                     choices=PAYMENT_TYPE,
                                     default='Cash',
                                     db_index=True)
+    cooking_restaurant = models.ForeignKey(Restaurant,
+                                           related_name='cooks',
+                                           on_delete=models.SET_NULL,
+                                           null=True,
+                                           blank=True)
+    available_restaurants = models.TextField(
+                                    verbose_name='Доступные рестораны',
+                                    blank=True,
+                                    null=True)
     objects = OrderQuerySet.as_manager()
 
     class Meta:

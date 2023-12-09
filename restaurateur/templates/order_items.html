@@ -21,6 +21,7 @@
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Комментарий</th>
+      <th>Рестораны</th>
       <th>Ссылка на админку</th>
     </tr>
 
@@ -38,6 +39,23 @@
             {{ order.comment }}
           {% endif %}
         </td>
+        <td>
+          {% if order.cooking_restaurant %}
+            Готовит {{ order.cooking_restaurant }}
+          {% elif order.available_restaurants %}
+            <details>
+              <summary>Может быть приготовлен ресторанами:</summary>
+              <ul>
+                {% for restaurant in order.available_restaurants %}
+                  <li>{{restaurant}}
+                {% endfor %}
+              </ul>
+            </details>
+          {% else %}
+            Ни один из ресторанов не могут приготовить заказ
+          {% endif %}
+        </td>
+
         <td><a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ '/manager/orders/' |urlencode }}">Редактировать</a></td>
       </tr>
     {% endfor %}
