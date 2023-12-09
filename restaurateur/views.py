@@ -90,7 +90,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.filter(status='U').fetch_total_price()
+    orders = Order.objects.exclude(status='D').fetch_total_price()
 
     restaurants_with_products = {
         restaurant.name: set(restaurant.menu_items.values_list('product__pk',
@@ -101,13 +101,13 @@ def view_orders(request):
     for order in orders:
         ordered_products = set(order.items.values_list('product__pk',
                                                        flat=True))
-        if not order.available_restaurants:
-            available_restaurants = set()
-            for restaurant, available_products in restaurants_with_products  \
-                                                    .items():
-                if available_products.intersection(ordered_products):
-                    available_restaurants.add(restaurant)
-
+        available_restaurants = set()
+        for restaurant, available_products in  \
+                restaurants_with_products.items():
+            if available_products.intersection(ordered_products) ==  \
+               ordered_products:
+                available_restaurants.add(restaurant)
+        if available_restaurants:
             order.available_restaurants = available_restaurants
             order.save()
 
