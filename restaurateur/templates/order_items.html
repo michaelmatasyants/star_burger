@@ -42,12 +42,12 @@
         <td>
           {% if order.cooking_restaurant %}
             Готовит {{ order.cooking_restaurant }}
-          {% elif order.available_restaurants %}
+          {% elif order.available_restaurants.all %}
             <details>
               <summary>Может быть приготовлен ресторанами:</summary>
               <ul>
-                {% for restaurant in order.available_restaurants %}
-                  <li>{{restaurant}}
+                {% for restaurant in order.available_restaurants.all %}
+                  <li>{{ restaurant }}
                 {% endfor %}
               </ul>
             </details>

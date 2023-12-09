@@ -154,10 +154,10 @@ class Order(models.Model):
                                            on_delete=models.SET_NULL,
                                            null=True,
                                            blank=True)
-    available_restaurants = models.TextField(
-                                    verbose_name='Доступные рестораны',
-                                    blank=True,
-                                    null=True)
+    available_restaurants = models.ManyToManyField(
+                                Restaurant,
+                                verbose_name='Доступные рестораны',
+                                blank=True)
     objects = OrderQuerySet.as_manager()
 
     class Meta:

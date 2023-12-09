@@ -92,24 +92,24 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.exclude(status='D').fetch_total_price()
 
-    restaurants_with_products = {
-        restaurant.name: set(restaurant.menu_items.values_list('product__pk',
-                                                               flat=True))
+    restaurant_with_products = {
+        restaurant: set(restaurant.menu_items.values_list('product__pk',
+                                                          flat=True))
         for restaurant in Restaurant.objects.all()
     }
 
     for order in orders:
-        ordered_products = set(order.items.values_list('product__pk',
-                                                       flat=True))
-        available_restaurants = set()
-        for restaurant, available_products in  \
-                restaurants_with_products.items():
-            if available_products.intersection(ordered_products) ==  \
-               ordered_products:
-                available_restaurants.add(restaurant)
-        if available_restaurants:
-            order.available_restaurants = available_restaurants
-            order.save()
+        if not order.available_restaurants.all():
+            ordered_products = set(
+                order.items.values_list('product__pk', flat=True))
+            available_restaurants = []
+
+            for restaurant, available_products in restaurant_with_products  \
+                    .items():
+                if not (available_products - ordered_products):
+                    available_restaurants.append(restaurant)
+            order.available_restaurants.set(available_restaurants)
+
 
     return render(request,
                   template_name='order_items.html',
