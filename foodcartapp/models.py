@@ -15,6 +15,10 @@ class Restaurant(models.Model):
                                      region='RU',
                                      blank=True,
                                      db_index=True)
+    lon = models.FloatField(verbose_name='Долгота',
+                            default=0)
+    lat = models.FloatField(verbose_name='Широта',
+                            default=0)
 
     class Meta:
         verbose_name = 'Ресторан'
@@ -125,6 +129,10 @@ class Order(models.Model):
     address = models.CharField(verbose_name='Адрес доставки',
                                max_length=100,
                                db_index=True)
+    lon = models.FloatField(verbose_name='Долгота',
+                            default=0)
+    lat = models.FloatField(verbose_name='Широта',
+                            default=0)
     status = models.CharField(verbose_name='Статус заказа',
                               max_length=1,
                               db_index=True,

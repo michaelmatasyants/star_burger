@@ -1,5 +1,7 @@
 {% extends 'base_restaurateur_page.html' %}
 
+{% load restaurateur_tags %}
+
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
 {% block content %}
@@ -47,7 +49,7 @@
               <summary>Может быть приготовлен ресторанами:</summary>
               <ul>
                 {% for restaurant in order.available_restaurants.all %}
-                  <li>{{ restaurant }}
+                  <li>{{ restaurant }} - {% calculate_distance order restaurant %} км
                 {% endfor %}
               </ul>
             </details>

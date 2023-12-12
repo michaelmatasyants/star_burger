@@ -6,7 +6,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from foodcartapp.geo_helper import fetch_coordinates
+from foodcartapp.models import Order, Product, Restaurant
 
 
 class Login(forms.Form):
@@ -109,7 +110,8 @@ def view_orders(request):
                 if not (available_products - ordered_products):
                     available_restaurants.append(restaurant)
             order.available_restaurants.set(available_restaurants)
-
+        order.lon, order.lat = fetch_coordinates(geocode=order.address)
+        order.save()
 
     return render(request,
                   template_name='order_items.html',
