@@ -6,7 +6,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from foodcartapp.geo_helper import fetch_coordinates
 from foodcartapp.models import Order, Product, Restaurant
 
 
@@ -69,17 +68,24 @@ def view_products(request):
 
     products_with_restaurant_availability = []
     for product in products:
-        availability = {item.restaurant_id: item.availability for item in product.menu_items.all()}
-        ordered_availability = [availability.get(restaurant.id, False) for restaurant in restaurants]
+        availability = {item.restaurant_id: item.availability
+                        for item in product.menu_items.all()}
+        ordered_availability = [availability.get(restaurant.id, False)
+                                for restaurant in restaurants]
 
         products_with_restaurant_availability.append(
             (product, ordered_availability)
         )
 
-    return render(request, template_name="products_list.html", context={
-        'products_with_restaurant_availability': products_with_restaurant_availability,
-        'restaurants': restaurants,
-    })
+    return render(
+        request,
+        template_name="products_list.html",
+        context={
+              'products_with_restaurant_availability':
+                      products_with_restaurant_availability,
+              'restaurants': restaurants,
+              }
+    )
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -93,7 +99,7 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.exclude(status='D').fetch_total_price()
 
-    restaurant_with_products = {
+    restaurant_products = {
         restaurant: set(restaurant.menu_items.values_list('product__pk',
                                                           flat=True))
         for restaurant in Restaurant.objects.all()
@@ -101,16 +107,16 @@ def view_orders(request):
 
     for order in orders:
         if not order.available_restaurants.all():
-            ordered_products = set(
-                order.items.values_list('product__pk', flat=True))
-            available_restaurants = []
+            ordered_products = set(order.items.values_list('product__pk',
+                                                           flat=True))
 
-            for restaurant, available_products in restaurant_with_products  \
-                    .items():
-                if not (available_products - ordered_products):
-                    available_restaurants.append(restaurant)
+            available_restaurants = [
+                restaurant for restaurant, available_products
+                in restaurant_products.items()
+                if not (available_products - ordered_products)
+            ]
+
             order.available_restaurants.set(available_restaurants)
-        order.lon, order.lat = fetch_coordinates(geocode=order.address)
         order.save()
 
     return render(request,

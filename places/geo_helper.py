@@ -4,6 +4,7 @@ from rest_framework.validators import ValidationError
 
 
 def fetch_coordinates(geocode: str):
+    '''Parses coordinates by given address with use of geocode yandex api'''
     api_key = settings.GEO_API_KEY
     base_url = 'https://geocode-maps.yandex.ru/1.x/'
     payload = {
@@ -23,4 +24,3 @@ def fetch_coordinates(geocode: str):
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split()
     return lon, lat
-
