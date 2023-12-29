@@ -114,6 +114,7 @@ class Order(models.Model):
     PAYMENT_TYPE = [
         ('Cash', 'Наличные'),
         ('Online', 'Онлайн'),
+        ('Not specified', 'Не указано')
     ]
     firstname = models.CharField(verbose_name='Имя клиента',
                                  max_length=50)
@@ -147,7 +148,7 @@ class Order(models.Model):
     payment_type = models.CharField(verbose_name='Способ оплаты',
                                     max_length=6,
                                     choices=PAYMENT_TYPE,
-                                    default='Cash',
+                                    default='Not specified',
                                     db_index=True)
     cooking_restaurant = models.ForeignKey(Restaurant,
                                            related_name='cooks',
