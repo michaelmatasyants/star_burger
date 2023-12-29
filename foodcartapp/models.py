@@ -146,7 +146,7 @@ class Order(models.Model):
                                         null=True,
                                         db_index=True)
     payment_type = models.CharField(verbose_name='Способ оплаты',
-                                    max_length=6,
+                                    max_length=13,
                                     choices=PAYMENT_TYPE,
                                     default='Not specified',
                                     db_index=True)
