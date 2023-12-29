@@ -9,9 +9,9 @@ class Place(models.Model):
     address = models.CharField(verbose_name='Адрес',
                                max_length=250)
     lat = models.FloatField(verbose_name='Широта',
-                            default=0)
+                            blank=True)
     lon = models.FloatField(verbose_name='Долгота',
-                            default=0)
+                            blank=True)
     update_date = models.DateField(verbose_name='Дата обновления',
                                    default=timezone.now,
                                    db_index=True)
@@ -21,7 +21,7 @@ class Place(models.Model):
         verbose_name_plural = 'Места'
 
     def __str__(self):
-        return str(self.address)
+        return self.address
 
     def save(self, *args, **kwargs):
         lon, lat = fetch_coordinates(self.address)
