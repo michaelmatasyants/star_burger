@@ -23,12 +23,10 @@ class OrderSerializer(ModelSerializer):
                   'address', 'products']
 
     def create(self, validated_data):
-        validated_order = validated_data.copy()
-        if 'products' in validated_order:
-            del validated_order['products']
-        new_order = Order.objects.create(**validated_order)
+        products = validated_data.pop('products')
+        new_order = Order.objects.create(**validated_data)
 
-        for product in validated_data['products']:
+        for product in products:
             if not product.get('price'):
                 product['price'] = product['quantity']  \
                                    * product['product'].price

@@ -182,7 +182,6 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(verbose_name='Количество',
                                    validators=[MinValueValidator(1)])
     price = models.DecimalField(verbose_name='Цена',
-                                default=0,
                                 max_digits=8,
                                 decimal_places=2,
                                 validators=[MinValueValidator(1)])
