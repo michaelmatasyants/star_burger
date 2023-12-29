@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils import timezone
 
-from places.geo_helper import fetch_coordinates
-
 
 class Place(models.Model):
     '''All places from project'''
@@ -22,9 +20,3 @@ class Place(models.Model):
 
     def __str__(self):
         return self.address
-
-    def save(self, *args, **kwargs):
-        lon, lat = fetch_coordinates(self.address)
-        self.lat = lat
-        self.lon = lon
-        return super(Place, self).save(*args, **kwargs)

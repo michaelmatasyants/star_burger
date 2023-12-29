@@ -1,5 +1,6 @@
 from rest_framework.serializers import ListField, ModelSerializer
 
+from places.geo_helper import fetch_coordinates
 from places.models import Place
 
 from .models import Order, OrderItem
@@ -32,7 +33,10 @@ class OrderSerializer(ModelSerializer):
                                    * product['product'].price
             OrderItem.objects.create(order=new_order, **product)
 
-        Place.objects.get_or_create(address=validated_data.address)
+        lon, lat = fetch_coordinates(validated_data.address)
+        Place.objects.get_or_create(address=validated_data.address,
+                                    lat=lat,
+                                    lon=lon)
         return new_order
 
     def update(self, instance, validated_data):
@@ -40,6 +44,9 @@ class OrderSerializer(ModelSerializer):
             instance.field = validated_data.get(field)
         if validated_data.address not in Place.objects.values_list('address',
                                                                    flat=True):
-            Place.objects.get_or_create(address=validated_data.address)
+            lon, lat = fetch_coordinates(validated_data.address)
+            Place.objects.get_or_create(address=validated_data.address,
+                                        lat=lat,
+                                        lon=lon)
         instance.save()
         return instance
