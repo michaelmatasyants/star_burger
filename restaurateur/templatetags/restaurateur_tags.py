@@ -1,3 +1,4 @@
+import requests
 from django import template
 from geopy.distance import distance
 
@@ -12,7 +13,10 @@ def calculate_distance(order: Order, restaurant: Restaurant):
     all_places = Place.objects.values_list('address', flat=True)
 
     if order.address not in all_places:
-        lon, lat = fetch_coordinates(order.address)
+        try:
+            lon, lat = fetch_coordinates(order.address)
+        except requests.HTTPError:
+            lon, lat = 0, 0
         order_place = Place.objects.create(address=order.address,
                                            lat=lat,
                                            lon=lon)
@@ -21,7 +25,10 @@ def calculate_distance(order: Order, restaurant: Restaurant):
     order_coordinates = (order_place.lat, order_place.lon)
 
     if restaurant.address not in all_places:
-        lon, lat = fetch_coordinates(restaurant.address)
+        try:
+            lon, lat = fetch_coordinates(restaurant.address)
+        except requests.HTTPError:
+            lon, lat = 0, 0
         restaurant_place = Place.objects.create(address=restaurant.address,
                                                 lat=lat,
                                                 lon=lon)

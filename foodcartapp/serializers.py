@@ -1,3 +1,4 @@
+import requests
 from rest_framework.serializers import ListField, ModelSerializer
 
 from places.geo_helper import fetch_coordinates
@@ -33,7 +34,10 @@ class OrderSerializer(ModelSerializer):
                                    * product['product'].price
             OrderItem.objects.create(order=new_order, **product)
 
-        lon, lat = fetch_coordinates(validated_data.address)
+        try:
+            lon, lat = fetch_coordinates(validated_data.address)
+        except requests.HTTPError:
+            lon, lat = 0, 0
         Place.objects.get_or_create(address=validated_data.address,
                                     lat=lat,
                                     lon=lon)
@@ -44,7 +48,10 @@ class OrderSerializer(ModelSerializer):
             instance.field = validated_data.get(field)
         if validated_data.address not in Place.objects.values_list('address',
                                                                    flat=True):
-            lon, lat = fetch_coordinates(validated_data.address)
+            try:
+                lon, lat = fetch_coordinates(validated_data.address)
+            except requests.HTTPError:
+                lon, lat = 0, 0
             Place.objects.get_or_create(address=validated_data.address,
                                         lat=lat,
                                         lon=lon)
