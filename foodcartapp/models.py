@@ -133,7 +133,7 @@ class Order(models.Model):
                               default='U')
     comment = models.TextField(verbose_name='Комментарий',
                                blank=True,
-                               null=True)
+                               null=False)
     registered_at = models.DateTimeField(verbose_name='Cоздан',
                                          default=timezone.now,
                                          db_index=True)
