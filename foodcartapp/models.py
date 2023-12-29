@@ -179,7 +179,8 @@ class OrderItem(models.Model):
                                 related_name='order_items',
                                 on_delete=models.SET_NULL,
                                 null=True)
-    quantity = models.IntegerField(verbose_name='Количество')
+    quantity = models.IntegerField(verbose_name='Количество',
+                                   validators=[MinValueValidator(1)])
     price = models.DecimalField(verbose_name='Цена',
                                 default=0,
                                 max_digits=8,
