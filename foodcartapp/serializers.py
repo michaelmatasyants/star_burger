@@ -4,7 +4,7 @@ from rest_framework.serializers import ListField, ModelSerializer
 from places.geo_helper import fetch_coordinates
 from places.models import Place
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, Product
 
 
 class OrderItemSerializer(ModelSerializer):
@@ -14,10 +14,18 @@ class OrderItemSerializer(ModelSerializer):
         fields = ['product', 'quantity', 'price']
 
 
+class ProductSerializer(ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = ['name', 'category', 'price', 'image',
+                  'special_status', 'description']
+
+
 class OrderSerializer(ModelSerializer):
-    products = ListField(many=True,
-                         allow_empty=False,
-                         write_only=True)
+    products = ProductSerializer(many=True,
+                                 allow_empty=False,
+                                 write_only=True)
 
     class Meta:
         model = Order
