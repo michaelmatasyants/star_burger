@@ -45,7 +45,7 @@ class OrderSerializer(ModelSerializer):
         try:
             lon, lat = fetch_coordinates(validated_data.address)
         except requests.HTTPError:
-            lon, lat = 0, 0
+            lon, lat = None, None
         Place.objects.get_or_create(address=validated_data.address,
                                     lat=lat,
                                     lon=lon)
@@ -59,7 +59,7 @@ class OrderSerializer(ModelSerializer):
             try:
                 lon, lat = fetch_coordinates(validated_data.address)
             except requests.HTTPError:
-                lon, lat = 0, 0
+                lon, lat = None, None
             Place.objects.get_or_create(address=validated_data.address,
                                         lat=lat,
                                         lon=lon)
