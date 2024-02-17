@@ -21,12 +21,12 @@
 
 Скачайте код:
 ```sh
-git clone https://github.com/devmanorg/star-burger.git
+git clone https://github.com/michaelmatasyants/star_burger.git
 ```
 
 Перейдите в каталог проекта:
 ```sh
-cd star-burger
+cd star_burger
 ```
 
 [Установите Python](https://www.python.org/), если этого ещё не сделали.
