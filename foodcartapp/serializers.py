@@ -1,5 +1,5 @@
 import requests
-from rest_framework.serializers import ListField, ModelSerializer
+from rest_framework.serializers import ModelSerializer
 
 from places.geo_helper import fetch_coordinates
 from places.models import Place
@@ -11,7 +11,7 @@ class OrderItemSerializer(ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['product', 'quantity', 'price']
+        fields = ['product', 'quantity']
 
 
 class ProductSerializer(ModelSerializer):
@@ -21,16 +21,15 @@ class ProductSerializer(ModelSerializer):
         fields = ['name', 'category', 'price', 'image',
                   'special_status', 'description']
 
-
 class OrderSerializer(ModelSerializer):
-    products = ProductSerializer(many=True,
-                                 allow_empty=False,
-                                 write_only=True)
+    products = OrderItemSerializer(many=True,
+                                   allow_empty=False,
+                                   write_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'firstname', 'lastname', 'phonenumber',
-                  'address', 'products']
+        fields = ['id', 'products', 'firstname',
+                  'lastname', 'phonenumber', 'address']
 
     def create(self, validated_data):
         products = validated_data.pop('products')
@@ -42,26 +41,29 @@ class OrderSerializer(ModelSerializer):
                                    * product['product'].price
             OrderItem.objects.create(order=new_order, **product)
 
+        address = validated_data.get('address')
         try:
-            lon, lat = fetch_coordinates(validated_data.address)
+            lon, lat = fetch_coordinates(address)
         except requests.HTTPError:
             lon, lat = None, None
-        Place.objects.get_or_create(address=validated_data.address,
+        Place.objects.get_or_create(address=address,
                                     lat=lat,
                                     lon=lon)
         return new_order
 
     def update(self, instance, validated_data):
+        address = validated_data.get('address')
         for field in validated_data:
             instance.field = validated_data.get(field)
-        if validated_data.address not in Place.objects.values_list('address',
-                                                                   flat=True):
+        if address not in Place.objects.values_list('address', flat=True):
             try:
-                lon, lat = fetch_coordinates(validated_data.address)
+                lon, lat = fetch_coordinates(address)
             except requests.HTTPError:
                 lon, lat = None, None
-            Place.objects.get_or_create(address=validated_data.address,
-                                        lat=lat,
-                                        lon=lon)
+            Place.objects.get_or_create(
+                address=address,
+                lat=lat,
+                lon=lon
+            )
         instance.save()
         return instance
